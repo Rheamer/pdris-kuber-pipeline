@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: db
+      labels:
+        app: db
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          value: sonarqube
+        - name: POSTGRES_PASSWORD
+          value: sonarpass
+        - name: POSTGRES_USER
+          value: sonarqube
+        image: postgres:14.1-alpine
+        name: db
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/postgresql
+          name: db-claim0
+        - mountPath: /var/lib/postgresql/data
+          name: db-claim1
+      restartPolicy: Always
+      volumes:
+      - name: db-claim0
+        persistentVolumeClaim:
+          claimName: db-claim0
+      - name: db-claim1
+        persistentVolumeClaim:
+          claimName: db-claim1

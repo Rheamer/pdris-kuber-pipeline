@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dockerd-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: dockerd
+  serviceName: "dockerd"
+  replicas: 6
+  template:
+    metadata:
+      labels:
+        app: dockerd
+      annotations:
+        io.kubernetes.cri-o.userns-mode: "auto:size=65536"
+    spec:
+      runtimeClassName: sysbox-runc
+      terminationGracePeriodSeconds: 20
+      containers:
+      - name: alpine-docker
+        image: nestybox/alpine-supervisord-docker:latest
+        ports:
+        - containerPort: 22
+          name: ssh
+        volumeMounts:
+        - name: docker-cache
+          mountPath: /var/lib/docker
+  volumeClaimTemplates:
+  - metadata:
+      name: docker-cache
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "gce-pd"
+      resources:
+        requests:
+          storage: 2Gi
+  podManagementPolicy: Parallel

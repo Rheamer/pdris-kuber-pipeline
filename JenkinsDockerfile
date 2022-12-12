@@ -1,0 +1,18 @@
+FROM jenkins/jenkins
+RUN apt -y update
+RUN apt -y install apt-utils
+RUN export DEBIAN_FRONTEND=noninteractive
+RUN apt -y install tzdata
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+RUN apt -y install net-tools python3.9 python3-pip mysql-client libmysqlclient-dev
+RUN apt -y install python3-dev
+RUN apt -y upgrade
+RUN apt -y install curl
+RUN pip install --upgrade pip setuptools wheel
+RUN python3 -m pip install --upgrade pip --user
+RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --upgrade build
+RUN apt -y install python3.8-venv
+RUN /root/.local/bin/poetry install

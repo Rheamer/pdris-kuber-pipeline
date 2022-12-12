@@ -1,0 +1,1 @@
+kubctl apply -f dep/

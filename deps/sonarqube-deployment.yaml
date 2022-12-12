@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sonarqube
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: sonarqube
+      labels:
+        app: sonarqube
+    spec:
+      containers:
+      - env:
+        - name: SONARQUBE_JDBC_PASSWORD
+          value: sonarpass
+        - name: SONARQUBE_JDBC_URL
+          value: jdbc:postgresql://db:5432/sonarqube
+        - name: SONARQUBE_JDBC_USERNAME
+          value: sonarqube
+        image: sonarqube
+        name: sonarqube
+        ports:
+        - containerPort: 9000
+        resources: {}
+        volumeMounts:
+        - mountPath: /opt/SonarQube/data
+          name: sonarqube-claim0
+        - mountPath: /opt/SonarQube/extensions
+          name: sonarqube-claim1
+        - mountPath: /opt/SonarQube/logs
+          name: sonarqube-claim2
+      restartPolicy: Always
+      volumes:
+      - name: sonarqube-claim0
+        persistentVolumeClaim:
+          claimName: sonarqube-claim0
+      - name: sonarqube-claim1
+        persistentVolumeClaim:
+          claimName: sonarqube-claim1
+      - name: sonarqube-claim2
+        persistentVolumeClaim:
+          claimName: sonarqube-claim2
+status: {}

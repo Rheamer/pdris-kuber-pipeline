@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: allure-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: allure
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: allure
+      labels:
+        app: allure
+    spec:
+      containers:
+      - env:
+        - name: CHECK_RESULTS_EVERY_SECONDS
+          value: "1"
+        - name: KEEP_HISTORY
+          value: "1"
+        image: frankescobar/allure-docker-service
+        name: allure
+        ports:
+        - containerPort: 5050
+        resources: {}
+        volumeMounts:
+        - mountPath: /app/allure-results
+          name: allure-claim0
+        - mountPath: /app/default-reports
+          name: allure-claim1
+      restartPolicy: Always
+      volumes:
+      - name: allure-claim0
+        persistentVolumeClaim:
+          claimName: allure-claim0
+      - name: allure-claim1
+        persistentVolumeClaim:
+          claimName: allure-claim1
+status: {}
